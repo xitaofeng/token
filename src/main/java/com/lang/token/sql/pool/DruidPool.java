@@ -3,6 +3,7 @@ package com.lang.token.sql.pool;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.druid.pool.DruidPooledConnection;
+import com.lang.token.util.PropertiesUtils;
 import com.lang.token.util.StringUtils;
 
 import java.io.*;
@@ -15,16 +16,14 @@ import java.util.Properties;
  * @date 2018-05-11 10:12
  */
 public class DruidPool {
-    public  DruidPooledConnection DruidDataSource() throws Exception{
-        Properties pps = new Properties();
-        DruidDataSource dataSource = null;
+
+    private static DruidDataSource dataSource = null;
+    static {
         try {
-            InputStream in = new BufferedInputStream(new FileInputStream("token.properties"));
-            pps.load(in);
-            String prop_url = pps.getProperty(DruidDataSourceFactory.PROP_URL);
-            String prop_driverclassname = pps.getProperty(DruidDataSourceFactory.PROP_DRIVERCLASSNAME);
-            String prop_username = pps.getProperty(DruidDataSourceFactory.PROP_USERNAME);
-            String prop_password = pps.getProperty(DruidDataSourceFactory.PROP_PASSWORD);
+            String prop_url = PropertiesUtils.getValue(DruidDataSourceFactory.PROP_URL);
+            String prop_driverclassname =  PropertiesUtils.getValue(DruidDataSourceFactory.PROP_DRIVERCLASSNAME);
+            String prop_username =  PropertiesUtils.getValue(DruidDataSourceFactory.PROP_USERNAME);
+            String prop_password =  PropertiesUtils.getValue(DruidDataSourceFactory.PROP_PASSWORD);
             if(StringUtils.isEmpty(prop_url)){
                 throw new IOException("URL is empty");
             }
@@ -37,18 +36,22 @@ public class DruidPool {
             if(StringUtils.isEmpty(prop_password)){
                 throw new IOException("PASSWORD is empty");
             }
-            in.close();
             Map<String,String> druidMap = new HashMap<String,String>();
             druidMap.put(DruidDataSourceFactory.PROP_URL, prop_url);
             druidMap.put(DruidDataSourceFactory.PROP_DRIVERCLASSNAME, prop_driverclassname);
             druidMap.put(DruidDataSourceFactory.PROP_USERNAME, prop_username);
             druidMap.put(DruidDataSourceFactory.PROP_PASSWORD, prop_password);
             dataSource = (DruidDataSource) DruidDataSourceFactory.createDataSource(druidMap);
-        }catch (FileNotFoundException e){
-            throw e;
-        }catch (IOException e){
-            throw e;
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return dataSource == null?null:dataSource.getConnection();
+    }
+    public  DruidPooledConnection druidDataSource() {
+        try {
+            return dataSource.getConnection();
+        }catch (Exception e){
+           e.printStackTrace();
+        }
+        return null;
     }
 }

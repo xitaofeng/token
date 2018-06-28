@@ -1,14 +1,17 @@
 package com.lang.token.model;
 
+import java.io.Serializable;
+
 /**
  * @author liu_yeye
  * @date 2018-05-11 14:02
  */
-public class UserInfo {
+public class UserInfo implements Serializable {
+
     private String client;
     private String clientType;
     private String name;
-    private String emial;
+    private String email;
 
     public String getClient() {
         return client;
@@ -34,11 +37,11 @@ public class UserInfo {
         this.name = name;
     }
 
-    public String getEmial() {
-        return emial;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEmial(String emial) {
-        this.emial = emial;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

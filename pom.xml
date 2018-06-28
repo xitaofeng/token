@@ -41,20 +41,30 @@
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
+    <!--kryo高效序列化工具-->
+    <!-- https://mvnrepository.com/artifact/com.esotericsoftware/kryo-shaded -->
+    <dependency>
+      <groupId>com.esotericsoftware</groupId>
+      <artifactId>kryo-shaded</artifactId>
+      <version>3.0.3</version>
+    </dependency>
+    <!--Apache 加密解密
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.10</version>
       <scope>provided</scope>
       <optional>true</optional>
-    </dependency>
+    </dependency>-->
     <dependency>
+      <!--servlet 相关-->
     <groupId>javax.servlet</groupId>
     <artifactId>javax.servlet-api</artifactId>
     <version>3.1.0</version>
     <scope>provided</scope>
     <optional>true</optional>
   </dependency>
+    <!--日志-->
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
@@ -85,6 +95,7 @@
       <version>2.5</version>
       <scope>provided</scope>
     </dependency>
+    <!--spring 相关-->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>

@@ -1,27 +1,56 @@
 package com.lang.token.util;
 
+import com.alibaba.druid.sql.visitor.functions.Hex;
+import com.lang.token.model.TokenEntity;
+import com.lang.token.model.TokenInfo;
+import com.lang.token.model.TokenUser;
+import com.lang.token.util.aes.AesUtils;
+import com.lang.token.util.base64.Base64Utils;
+import com.lang.token.util.date.DateTimeUtils;
+import com.lang.token.util.hex.HexUtils;
+import com.lang.token.util.kyro.KryoUtil;
+import com.lang.token.util.md5.MD5Utils;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
-import static org.junit.Assert.*;
+import java.util.Date;
+import java.util.HashMap;
 
 public class DefaultTokenUtilsTest {
 
     @Test
-    public void push() {
-        Token token = Token.getInstance((byte) 16);
-        Token token1 = Token.getInstance();
-        Token token2 = Token.getInstance((byte)32);
-        token.getTokenArray()[0]="a";
-        token1.getTokenArray()[2]="33";
-        token2.getTokenArray()[3]="b";
-        DefaultTokenUtils tokenUtils = new DefaultTokenUtils(token);
-        DefaultTokenUtils tokenUtils1 = new DefaultTokenUtils(token1);
-        DefaultTokenUtils tokenUtils2 = new DefaultTokenUtils(token2);
-        System.out.println(Arrays.toString(tokenUtils.getToken().getTokenArray()));
-        System.out.println(Arrays.toString(tokenUtils1.getToken().getTokenArray()));
-        System.out.println(Arrays.toString(tokenUtils2.getToken().getTokenArray()));
+    public void push() throws Exception{
+        Date nowTime = new Date();
+        Date overTime = DateTimeUtils.getDateInstance().getSomeDay(nowTime,1);
+        long expires = 7200;
+        System.out.println((overTime.getTime()+7200*1000-nowTime.getTime())/3600/1000);
+
+        TokenInfo tokenInfo = new TokenInfo();
+        String key = MD5Utils.getEncrypt().toMd5String("你的等我及 ");
+        tokenInfo.setUserName(MD5Utils.getEncrypt().toMd5String("a"));
+        tokenInfo.setValidTime(1530169129395L);
+        tokenInfo.setExpires(7200);
+        tokenInfo.setSalt(SnowFlake.getInstance().nextId());
+         System.out.println(tokenInfo.toString());
+        byte[] bytes = KryoUtil.writeObjectToByteArray(tokenInfo);
+          System.out.println(Base64Utils.getEncoder().encodeToString(AesUtils.encrypt(bytes,key)));
+        bytes =  Base64Utils.getDecoder().decode(Base64Utils.getEncoder().encodeToString(AesUtils.encrypt(bytes,key)));
+        bytes = AesUtils.decrypt(bytes,key);
+        System.out.println(KryoUtil.readObjectFromByteArray(bytes,TokenInfo.class).toString());
+//        System.out.println(MD5Utils.getEncrypt().toMd5String(new Base64().encodeToString("ab534534c".getBytes())));
+//        System.out.println(MD5Utils.getEncrypt().toMd5String(new Base64().encodeToString("ab534534c".getBytes())));
+//        System.out.println(Base64Utils.getEncoder().encodeToString("ab534534c".getBytes()));
+//        System.out.println(new Base64().encodeToString("ab534534c".getBytes()));
+//        int MAXIMUM_CAPACITY = 1 << 30;
+//        System.out.println(1<<4);
+//        int number = 0;
+//        number =  number >= MAXIMUM_CAPACITY ? MAXIMUM_CAPACITY: (number > 1) ? Integer.highestOneBit((number - 1) << 1) : 1;
+//        System.out.println(number);
+//        System.out.println(2<<128);System.out.println(Math.pow(2,128));
+//        Token token = Token.getInstance((byte) 16);
+//        Token token1 = Token.getInstance();
+//        Token token2 = Token.getInstance((byte)32);
     }
 
     @Test

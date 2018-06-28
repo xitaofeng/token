@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
  * @date 2018-05-11 10:50
  */
 public class StringUtils {
+    private StringUtils(){}
     private static final Logger LOG = LoggerFactory.getLogger(StringUtils.class);
     public static boolean isEmpty(String value) {
         return isEmpty((CharSequence)value);
