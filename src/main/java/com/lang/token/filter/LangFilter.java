@@ -40,6 +40,7 @@ public abstract class LangFilter implements Filter {
                 out.write(stringBuilder.toString());
                 out.flush();
             }else{
+                //从headertoken
                 String token = request.getHeader("token");
                 if(token == null){
                     StringBuilder stringBuilder = new StringBuilder();
@@ -47,7 +48,9 @@ public abstract class LangFilter implements Filter {
                     out.write(stringBuilder.toString());
                     out.flush();
                 }
+                //解密token
                 TokenInfo tokenInfo = tokenOperation.decryptToken(token);
+                //验证token
                 tokenOperation.validateToken(tokenInfo);
                 chain.doFilter(request, response);
             }
