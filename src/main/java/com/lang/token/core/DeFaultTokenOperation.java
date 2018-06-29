@@ -17,14 +17,16 @@ import java.util.Date;
  * @date 2018-06-28 22:10
  */
 public class DeFaultTokenOperation implements TokenOperation {
+    private Encryption encryption = new AbstractEncryption();
     //7200s 默认有效时间
     private static final long DEFAULT_EXPIRES=7200;
     private static final String AES_KEY = MD5Utils.getEncrypt().toMd5String(PropertiesUtils.getValue("aes_key"));
+
     @Override
     public TokenInfo validateUser(String userName, String passWord, String signature) {
         UserDao userDao = new UserDao();
         //signature md5
-        String md5Signature = MD5Utils.getEncrypt().toMd5String(signature);
+        String md5Signature = encryption.md5Str(signature);
         //时间戳
         Date nowTime = new Date();
         //token信息盐值
@@ -53,7 +55,6 @@ public class DeFaultTokenOperation implements TokenOperation {
     public String encryptToken(TokenInfo tokenInfo) {
         try{
             //object to byte[]
-            Encryption encryption = new AbstractEncryption();
             byte[] tokenBytes = encryption.objectToByteArray(tokenInfo);
             //aes 加密
             byte[] aesBytes = encryption.aesEncryptBytes(tokenBytes,AES_KEY);
@@ -67,7 +68,6 @@ public class DeFaultTokenOperation implements TokenOperation {
     @Override
     public TokenInfo decryptToken(String token) {
         try{
-            Encryption encryption = new AbstractEncryption();
             //base64 解码
             byte[] base64Bytes = encryption.base64DecoderStr(token);
             //aes 解密
@@ -81,17 +81,16 @@ public class DeFaultTokenOperation implements TokenOperation {
     @Override
     public TokenUser encryptUser(TokenUserInfo tokenUserInfo,String signature) {
         try{
-            Encryption encryption = new AbstractEncryption();
+            long salt = SnowFlake.getInstance().nextId();
+            tokenUserInfo.setSalt(salt);
             //object to byte[]
             byte[] userInfoBytes = encryption.objectToByteArray(tokenUserInfo);
             //aes 加密
-            byte[] aesBytes = encryption.aesDecryptBytes(userInfoBytes,AES_KEY);
+            byte[] aesBytes = encryption.aesEncryptBytes(userInfoBytes,AES_KEY);
             //base64 编码 得到授权用户名
             String base64UserName = encryption.base64EncoderStr(aesBytes);
-            long salt = SnowFlake.getInstance().nextId();
-            tokenUserInfo.setSalt(salt);
             //aes 加密
-            byte[] pwdAesBytes = encryption.aesDecryptBytes(userInfoBytes,AES_KEY);
+            byte[] pwdAesBytes = encryption.aesEncryptBytes((base64UserName+salt).getBytes("UTF-8"),AES_KEY);
             //md5 密码
             String md5Pwd = encryption.md5Str(pwdAesBytes);
             String md5Signature = encryption.md5Str(signature);

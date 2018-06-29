@@ -50,6 +50,9 @@ public abstract class LangFilter implements Filter {
                     String userName = paramMap.get("userName");
                     String passWord = paramMap.get("passWord");
                     String signature = paramMap.get("signature");
+                    validParam(userName,"userName参数不能为空");
+                    validParam(passWord,"passWord参数不能为空");
+                    validParam(signature,"signature参数不能为空");
                     TokenInfo tokenInfo = tokenOperation.validateUser(userName,passWord,signature);
                     String token = tokenOperation.encryptToken(tokenInfo);
                     StringBuilder stringBuilder = new StringBuilder();
@@ -62,6 +65,8 @@ public abstract class LangFilter implements Filter {
                     Map<String,String> adminMap = params2Map(admin);
                     String loginName = adminMap.get(PARAM_NAME_LOGINUSERNAME);
                     String loginPwd = adminMap.get(PARAM_NAME_LOGINPASSWORD);
+                    validParam(loginName,"loginUsername参数不能为空");
+                    validParam(loginPwd,"loginPassword参数不能为空");
                     if(this.loginUsername.equals(loginName)&&this.loginPassword.equals(loginPwd)){
                         //添加token授权用户
                         if("add".equals(opt)){
@@ -70,6 +75,11 @@ public abstract class LangFilter implements Filter {
                             String name = paramMap.get("name");
                             String email = paramMap.get("email");
                             String signature = paramMap.get("signature");
+                            validParam(client,"client参数不能为空");
+                            validParam(clientType,"clientType参数不能为空");
+                            validParam(name,"name参数不能为空");
+                            validParam(email,"email参数不能为空");
+                            validParam(signature,"signature参数不能为空");
                             TokenUserInfo tokenUserInfo = new TokenUserInfo();
                             tokenUserInfo.setClient(client);
                             tokenUserInfo.setClientType(clientType);
@@ -85,6 +95,7 @@ public abstract class LangFilter implements Filter {
                             out.flush();
                         }else if("delete".equals(opt)){
                             String userName = paramMap.get("userName");
+                            validParam(userName,"userName参数不能为空");
                             userDao.delUser(userName);
                             StringBuilder stringBuilder = new StringBuilder();
                             stringBuilder.append("{\"result\":\"").append("删除授权用户").append(userName).append("成功").append("\"}");
@@ -133,6 +144,11 @@ public abstract class LangFilter implements Filter {
             throw  new RuntimeException("请求的url参数admin有误");
         }
     }
+    private void validParam(String param,String message){
+        if(StringUtils.isEmpty(param)){
+            throw new RuntimeException(message);
+        }
+    }
     private Map<String,String> params2Map(String params){
         try{
             String[] paramJson = params.split(",");
@@ -143,9 +159,9 @@ public abstract class LangFilter implements Filter {
                     throw  new RuntimeException("请求的json参数格式错误");
                 }
                 String[] onekeys =singleParam[0].split("\"");
-                String key = onekeys[0].equals("{")?onekeys[1]:onekeys[0];
+                String key = onekeys[1];
                 String[] oneValues = singleParam[1].split("\"");
-                String value = oneValues[0].equals("}")?oneValues[1]:oneValues[0];
+                String value = oneValues[1];
                 if(StringUtils.isEmpty(key)||StringUtils.isEmpty(value)){
                     throw  new RuntimeException("请求的json参数格式错误");
                 }
@@ -153,7 +169,7 @@ public abstract class LangFilter implements Filter {
             }
             return paramMap;
         }catch (Exception e){
-            throw  new RuntimeException("请求的json参数格式错误");
+            throw  new RuntimeException("请求的json参数格式错误",e);
         }
     }
     @Override

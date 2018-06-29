@@ -21,7 +21,7 @@ public class UserDao {
         PreparedStatement preparedStatement = null;
         try{
             connection = druidPool.druidDataSource();
-            String sql = "insert into token_user(\"username\",\"password\",\"signature\") values (?,?,?)";
+            String sql = "insert into token_user(username,password,signature) values (?,?,?)";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1,tokenUser.getUserName());
             preparedStatement.setString(2,tokenUser.getPassWord());

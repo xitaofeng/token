@@ -86,7 +86,7 @@ public class Base64Utils {
 //        private static final int MIMELINEMAX = 76;
 //        private static final byte[] CRLF = new byte[] {'\r', '\n'};
 
-        static final Encoder RFC4648 = new Encoder(false, null, -1, true);
+        static final Encoder RFC4648 = new Encoder(true, null, -1, true);
 
         private final int outLength(int srclen) {
             int len = 0;
@@ -255,7 +255,7 @@ public class Base64Utils {
             fromBase64URL['='] = -2;
         }
 
-        static final Decoder RFC4648         = new Decoder(false, false);
+        static final Decoder RFC4648         = new Decoder(true, false);
 
         /**
          * 解码
