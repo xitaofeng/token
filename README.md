@@ -9,19 +9,12 @@
 ##创建token.properties
 最后需要在src/main/resources 目录下创建token.properties
 包括以下key：
-
 url=必填(数据库连接地址)
-
 driverClassName=必填(数据库连接驱动类)
-
 username=必填(数据库账户)
-
 password=必填(数据库密码)
-
 token_path=必填(token授权接口地址)
-
 aes_key=必填(AES算法加密密钥，16位以上)
-
 expires=选填(token有效时间，单位s,默认7200s)
 ##创建token授权用户信息表
 在你的数据库里创建以下表
