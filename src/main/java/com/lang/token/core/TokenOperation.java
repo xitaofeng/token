@@ -1,6 +1,8 @@
 package com.lang.token.core;
 
 import com.lang.token.model.TokenInfo;
+import com.lang.token.model.TokenUser;
+import com.lang.token.model.TokenUserInfo;
 
 /**
  * @author liu_yeye
@@ -11,4 +13,5 @@ public interface TokenOperation {
     String encryptToken(TokenInfo tokenInfo);
     TokenInfo decryptToken(String token);
     void validateToken(TokenInfo tokenInfo);
+    TokenUser encryptUser(TokenUserInfo tokenUserInfo, String signature);
 }

@@ -2,6 +2,7 @@ package com.lang.token.core;
 
 import com.lang.token.model.TokenInfo;
 import com.lang.token.model.TokenUser;
+import com.lang.token.model.TokenUserInfo;
 import com.lang.token.sql.dao.UserDao;
 import com.lang.token.util.PropertiesUtils;
 import com.lang.token.util.SnowFlake;
@@ -50,26 +51,59 @@ public class DeFaultTokenOperation implements TokenOperation {
 
     @Override
     public String encryptToken(TokenInfo tokenInfo) {
-        //object to byte[]
-        Encryption encryption = new AbstractEncryption();
-        byte[] tokenBytes = encryption.objectToByteArray(tokenInfo);
-        //aes 加密
-        byte[] aesBytes = encryption.aesEncryptBytes(tokenBytes,AES_KEY);
-        //base64 编码
-        return encryption.base64EncoderStr(aesBytes);
+        try{
+            //object to byte[]
+            Encryption encryption = new AbstractEncryption();
+            byte[] tokenBytes = encryption.objectToByteArray(tokenInfo);
+            //aes 加密
+            byte[] aesBytes = encryption.aesEncryptBytes(tokenBytes,AES_KEY);
+            //base64 编码
+            return encryption.base64EncoderStr(aesBytes);
+        }catch (Exception e){
+            throw  new RuntimeException("token加密失败",e);
+        }
     }
 
     @Override
     public TokenInfo decryptToken(String token) {
-        Encryption encryption = new AbstractEncryption();
-        //base64 解码
-        byte[] base64Bytes = encryption.base64DecoderStr(token);
-        //aes 解密
-        byte[] aesBytes = encryption.aesDecryptBytes(base64Bytes,AES_KEY);
-        //转化token对象
-        return (TokenInfo) encryption.byteArrayToObject(aesBytes,TokenInfo.class);
+        try{
+            Encryption encryption = new AbstractEncryption();
+            //base64 解码
+            byte[] base64Bytes = encryption.base64DecoderStr(token);
+            //aes 解密
+            byte[] aesBytes = encryption.aesDecryptBytes(base64Bytes,AES_KEY);
+            //转化token对象
+            return (TokenInfo) encryption.byteArrayToObject(aesBytes,TokenInfo.class);
+        }catch (Exception e){
+            throw  new RuntimeException("token无效",e);
+        }
     }
-
+    @Override
+    public TokenUser encryptUser(TokenUserInfo tokenUserInfo,String signature) {
+        try{
+            Encryption encryption = new AbstractEncryption();
+            //object to byte[]
+            byte[] userInfoBytes = encryption.objectToByteArray(tokenUserInfo);
+            //aes 加密
+            byte[] aesBytes = encryption.aesDecryptBytes(userInfoBytes,AES_KEY);
+            //base64 编码 得到授权用户名
+            String base64UserName = encryption.base64EncoderStr(aesBytes);
+            long salt = SnowFlake.getInstance().nextId();
+            tokenUserInfo.setSalt(salt);
+            //aes 加密
+            byte[] pwdAesBytes = encryption.aesDecryptBytes(userInfoBytes,AES_KEY);
+            //md5 密码
+            String md5Pwd = encryption.md5Str(pwdAesBytes);
+            String md5Signature = encryption.md5Str(signature);
+            TokenUser tokenUser = new TokenUser();
+            tokenUser.setUserName(base64UserName);
+            tokenUser.setPassWord(md5Pwd);
+            tokenUser.setSignature(md5Signature);
+            return tokenUser;
+        }catch (Exception e){
+            throw  new RuntimeException("token无效",e);
+        }
+    }
     @Override
     public void validateToken(TokenInfo tokenInfo) {
         long nowTimestamp =System.currentTimeMillis();

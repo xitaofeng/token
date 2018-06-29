@@ -4,6 +4,7 @@ import com.lang.token.model.TokenInfo;
 import com.lang.token.util.aes.AesUtils;
 import com.lang.token.util.base64.Base64Utils;
 import com.lang.token.util.kyro.KryoUtil;
+import com.lang.token.util.md5.MD5Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,4 +43,12 @@ public class AbstractEncryption implements Encryption {
         return KryoUtil.writeObjectToByteArray(o);
     }
 
+    @Override
+    public String md5Str(byte[] bytes) {
+        return MD5Utils.getEncrypt().toMd5String(base64EncoderStr(bytes));
+    }
+    @Override
+    public String md5Str(String str) {
+        return MD5Utils.getEncrypt().toMd5String(str);
+    }
 }

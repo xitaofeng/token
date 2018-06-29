@@ -13,7 +13,8 @@ public class PropertiesUtils {
     private static Properties pps = new Properties();
     static{
         try{
-            InputStream in = new BufferedInputStream(new FileInputStream("token.properties"));
+
+            InputStream in = new BufferedInputStream(new FileInputStream("src/main/resources/token.properties"));
             pps.load(in);
             if(pps.getProperty("token_path") == null){
                 throw  new RuntimeException("token请求路径：token_path不存在");
@@ -21,8 +22,8 @@ public class PropertiesUtils {
             if(pps.getProperty("aes_key") == null){
                 throw  new RuntimeException("aes加密密钥：aes_key不存在");
             }
-            if(pps.getProperty("aes_key").length()<=16){
-                throw  new RuntimeException("aes加密密钥长度必须大于16位");
+            if(pps.getProperty("aes_key").length()<16){
+                throw  new RuntimeException("aes加密密钥长度不能小于16位");
             }
             if(pps.getProperty("expires")!=null&&Long.valueOf(pps.getProperty("expires"))<=0){
                 throw  new RuntimeException("token有效时间：expires有误");

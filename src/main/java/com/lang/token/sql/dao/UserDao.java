@@ -16,19 +16,19 @@ import java.util.List;
  */
 public class UserDao {
     private DruidPool druidPool = new DruidPool();
-    public void addUser(String userName,String passWord,String signature) {
+    public void addUser(TokenUser tokenUser) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try{
             connection = druidPool.druidDataSource();
-            String sql = "insert into token_user values (?,?,?)";
+            String sql = "insert into token_user(\"username\",\"password\",\"signature\") values (?,?,?)";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,userName);
-            preparedStatement.setString(2,passWord);
-            preparedStatement.setString(3,signature);
+            preparedStatement.setString(1,tokenUser.getUserName());
+            preparedStatement.setString(2,tokenUser.getPassWord());
+            preparedStatement.setString(3,tokenUser.getSignature());
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            e.printStackTrace();
+           throw new RuntimeException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement);
         }
@@ -43,7 +43,7 @@ public class UserDao {
             preparedStatement.setString(1,userName);
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement);
         }
@@ -59,7 +59,7 @@ public class UserDao {
             preparedStatement.setString(2,userName);
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement);
         }
@@ -82,7 +82,7 @@ public class UserDao {
                 tokenUser.setUserName(resultSet.getString("username"));
             }
         }catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement,resultSet);
         }
@@ -107,7 +107,7 @@ public class UserDao {
                 tokenUsers.add(tokenUser);
             }
         }catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement,resultSet);
         }
