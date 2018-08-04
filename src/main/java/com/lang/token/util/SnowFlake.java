@@ -1,5 +1,7 @@
 package com.lang.token.util;
 
+import com.lang.token.core.TokenException;
+
 /**
  * 发号器
 * Twitter的SnowFlake算法,使用SnowFlake算法生成一个整数，然后转化为62进制变成一个短地址URL
@@ -66,10 +68,10 @@ public class SnowFlake {
          * 产生下一个ID
          * @return
          */
-        public synchronized long nextId() {
+        public synchronized long nextId() throws TokenException{
             long currTimeStamp = getNewTimeStamp();
             if (currTimeStamp < lastTimeStamp) {
-                throw new RuntimeException("Clock moved backwards.  Refusing to generate id");
+                throw new TokenException("Clock moved backwards.  Refusing to generate id");
             }
             if (currTimeStamp == lastTimeStamp) {
                 //相同毫秒内，序列号自增

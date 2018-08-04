@@ -1,5 +1,7 @@
 package com.lang.token.util.aes;
 
+import com.lang.token.core.TokenException;
+
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
@@ -15,7 +17,7 @@ public class AesUtils {
      * @param password 加密需要的密码
      * @return 密文
      */
-    public static byte[] encrypt(byte[] byteContent, String password) {
+    public static byte[] encrypt(byte[] byteContent, String password){
         try {
             // 创建AES的Key生产者
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
@@ -46,7 +48,7 @@ public class AesUtils {
      * @param password 解密密钥
      * @return
      */
-    public static byte[] decrypt(byte[] content, String password) {
+    public static byte[] decrypt(byte[] content, String password){
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");
             SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");

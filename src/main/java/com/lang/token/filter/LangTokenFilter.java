@@ -1,6 +1,7 @@
 package com.lang.token.filter;
 
 import com.lang.token.core.DeFaultTokenOperation;
+import com.lang.token.core.TokenException;
 import com.lang.token.core.TokenOperation;
 import com.lang.token.model.TokenInfo;
 import com.lang.token.model.TokenUser;
@@ -21,7 +22,7 @@ import java.util.Map;
  * @author liu_yeye
  * @date 2018-05-11 15:54
  */
-public abstract class LangFilter implements Filter {
+public abstract class LangTokenFilter implements Filter {
     private TokenOperation tokenOperation = new DeFaultTokenOperation();
     private UserDao userDao = new UserDao();
     private static final String PARAM_NAME_LOGINUSERNAME = "loginUsername";
@@ -29,7 +30,7 @@ public abstract class LangFilter implements Filter {
     private String loginUsername = null;
     private String loginPassword = null;
     @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException {
         HttpServletRequest request =(HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
         String servletPath = request.getServletPath();
@@ -102,14 +103,14 @@ public abstract class LangFilter implements Filter {
                             out.write(stringBuilder.toString());
                             out.flush();
                         }else {
-                            throw new RuntimeException("请求的url参数opt无效");
+                            throw new TokenException("请求的url参数opt无效");
                         }
                     }else{
-                        throw new RuntimeException("请求的url参数admin验证失败");
+                        throw new TokenException("请求的url参数admin验证失败");
                     }
                 }
             }else{
-                //从headertoken
+                //从header获取token
                 String token = request.getHeader("token");
                 if(token == null){
                     StringBuilder stringBuilder = new StringBuilder();
@@ -133,47 +134,55 @@ public abstract class LangFilter implements Filter {
             e.printStackTrace();
         }
     }
-    private void validServletPath(String opt ,String params,String admin){
+    private void validServletPath(String opt ,String params,String admin) throws TokenException{
         if(StringUtils.isEmpty(opt)){
-            throw  new RuntimeException("请求的url参数opt有误");
+            throw  new TokenException("请求的url参数opt有误");
         }
         if(StringUtils.isEmpty(params)){
-            throw  new RuntimeException("请求的url参数params有误");
+            throw  new TokenException("请求的url参数params有误");
         }
         if(!"auth".equals(opt)&&StringUtils.isEmpty(admin)){
-            throw  new RuntimeException("请求的url参数admin有误");
+            throw  new TokenException("请求的url参数admin有误");
         }
     }
-    private void validParam(String param,String message){
+    private void validParam(String param,String message) throws TokenException{
         if(StringUtils.isEmpty(param)){
-            throw new RuntimeException(message);
+            throw new TokenException(message);
         }
     }
-    private Map<String,String> params2Map(String params){
+    private Map<String,String> params2Map(String params) throws TokenException{
         try{
             String[] paramJson = params.split(",");
             Map<String,String> paramMap = new HashMap<>(8);
             for(String param:paramJson){
                 String[] singleParam = param.split(":");
                 if(singleParam.length!=2){
-                    throw  new RuntimeException("请求的json参数格式错误");
+                    throw  new TokenException("请求的json参数格式错误");
                 }
-                String[] onekeys =singleParam[0].split("\"");
-                String key = onekeys[1];
-                String[] oneValues = singleParam[1].split("\"");
-                String value = oneValues[1];
+                String key ;
+                if(singleParam[0].contains("\"")){
+                    key = singleParam[0].split("\"")[1];
+                }else{
+                    key = singleParam[0];
+                }
+                String value;
+                if(singleParam[1].contains("\"")){
+                    value =  singleParam[1].split("\"")[0];
+                }else{
+                    value = singleParam[1];
+                }
                 if(StringUtils.isEmpty(key)||StringUtils.isEmpty(value)){
-                    throw  new RuntimeException("请求的json参数格式错误");
+                    throw  new TokenException("请求的json参数格式错误");
                 }
                 paramMap.put(key,value);
             }
             return paramMap;
         }catch (Exception e){
-            throw  new RuntimeException("请求的json参数格式错误",e);
+            throw  new TokenException("请求的json参数格式错误",e);
         }
     }
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         String loginUsername = filterConfig.getInitParameter("loginUsername");
         String loginPassword = filterConfig.getInitParameter("loginPassword");
         if(StringUtils.isEmpty(loginPassword)){

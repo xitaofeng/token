@@ -27,7 +27,7 @@ public class AbstractEncryption implements Encryption {
         return Base64Utils.getDecoder().decode(str);
     }
     @Override
-    public byte[] aesEncryptBytes(byte[] bytes,String key){
+    public byte[] aesEncryptBytes(byte[] bytes,String key) {
         return AesUtils.encrypt(bytes,key);
     }
     @Override

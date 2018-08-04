@@ -9,9 +9,9 @@ import com.lang.token.model.TokenUserInfo;
  * @date 2018-06-27 22:48
  */
 public interface TokenOperation {
-    TokenInfo validateUser(String userName, String passWord, String signature);
-    String encryptToken(TokenInfo tokenInfo);
-    TokenInfo decryptToken(String token);
-    void validateToken(TokenInfo tokenInfo);
-    TokenUser encryptUser(TokenUserInfo tokenUserInfo, String signature);
+    TokenInfo validateUser(String userName, String passWord, String signature) throws TokenException;
+    String encryptToken(TokenInfo tokenInfo) throws TokenException;
+    TokenInfo decryptToken(String token) throws TokenException;
+    void validateToken(TokenInfo tokenInfo) throws TokenException;
+    TokenUser encryptUser(TokenUserInfo tokenUserInfo, String signature) throws TokenException;
 }

@@ -1,5 +1,6 @@
 package com.lang.token.sql.dao;
 
+import com.lang.token.core.TokenException;
 import com.lang.token.model.TokenUser;
 import com.lang.token.sql.pool.DruidPool;
 
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public class UserDao {
     private DruidPool druidPool = new DruidPool();
-    public void addUser(TokenUser tokenUser) {
+    public void addUser(TokenUser tokenUser) throws TokenException{
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try{
@@ -28,12 +29,12 @@ public class UserDao {
             preparedStatement.setString(3,tokenUser.getSignature());
             preparedStatement.executeUpdate();
         }catch (Exception e){
-           throw new RuntimeException(e.getMessage(),e);
+           throw new TokenException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement);
         }
     }
-    public void delUser(String userName) {
+    public void delUser(String userName) throws TokenException{
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try{
@@ -43,12 +44,12 @@ public class UserDao {
             preparedStatement.setString(1,userName);
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            throw new RuntimeException(e.getMessage(),e);
+            throw new TokenException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement);
         }
     }
-    public void updateUser(String userName,String signature) {
+    public void updateUser(String userName,String signature) throws TokenException{
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try{
@@ -59,12 +60,12 @@ public class UserDao {
             preparedStatement.setString(2,userName);
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            throw new RuntimeException(e.getMessage(),e);
+            throw new TokenException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement);
         }
     }
-    public TokenUser validUser(String userName,String passWord,String signature){
+    public TokenUser validUser(String userName,String passWord,String signature) throws TokenException{
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -82,13 +83,13 @@ public class UserDao {
                 tokenUser.setUserName(resultSet.getString("username"));
             }
         }catch (Exception e){
-            throw new RuntimeException(e.getMessage(),e);
+            throw new TokenException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement,resultSet);
         }
         return tokenUser;
     }
-    public void findUser() {
+    public void findUser() throws TokenException{
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -107,7 +108,7 @@ public class UserDao {
                 tokenUsers.add(tokenUser);
             }
         }catch (Exception e){
-            throw new RuntimeException(e.getMessage(),e);
+            throw new TokenException(e.getMessage(),e);
         }finally {
             release(connection,preparedStatement,resultSet);
         }
