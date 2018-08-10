@@ -15,9 +15,7 @@ public class PropertiesUtils {
     private static Properties pps = new Properties();
     static{
         try{
-
-            InputStream in = new BufferedInputStream(new FileInputStream("src/main/resources/token.properties"));
-            pps.load(in);
+            pps.load(PropertiesUtils.class.getResourceAsStream("/token.properties"));
             if(pps.getProperty("token_path") == null){
                 throw  new TokenException("token请求路径：token_path不存在");
             }

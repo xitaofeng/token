@@ -9,6 +9,8 @@ import com.lang.token.model.TokenUserInfo;
 import com.lang.token.sql.dao.UserDao;
 import com.lang.token.util.PropertiesUtils;
 import com.lang.token.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +25,7 @@ import java.util.Map;
  * @date 2018-05-11 15:54
  */
 public abstract class LangTokenFilter implements Filter {
+    private final Logger log = LoggerFactory.getLogger(LangTokenFilter.class);
     private TokenOperation tokenOperation = new DeFaultTokenOperation();
     private UserDao userDao = new UserDao();
     private static final String PARAM_NAME_LOGINUSERNAME = "loginUsername";
@@ -42,17 +45,16 @@ public abstract class LangTokenFilter implements Filter {
         try{
             if(servletPath.startsWith(tokenPath)){
                 String opt = request.getParameter("opt");
-                String params = request.getParameter("params");
-                String admin = request.getParameter("admin");
-                validServletPath(opt,params,admin);
-                Map<String,String> paramMap = params2Map(params);
+                if(StringUtils.isEmpty(opt)){
+                    throw  new TokenException("请求的url参数opt有误");
+                }
                 if("auth".equals(opt)){
                     //请求token
-                    String userName = paramMap.get("userName");
-                    String passWord = paramMap.get("passWord");
-                    String signature = paramMap.get("signature");
-                    validParam(userName,"userName参数不能为空");
-                    validParam(passWord,"passWord参数不能为空");
+                    String userName = request.getParameter("username");
+                    String passWord = request.getParameter("password");
+                    String signature = request.getParameter("signature");
+                    validParam(userName,"username参数不能为空");
+                    validParam(passWord,"password参数不能为空");
                     validParam(signature,"signature参数不能为空");
                     TokenInfo tokenInfo = tokenOperation.validateUser(userName,passWord,signature);
                     String token = tokenOperation.encryptToken(tokenInfo);
@@ -63,6 +65,10 @@ public abstract class LangTokenFilter implements Filter {
                     out.flush();
                 }else {
                     //验证后台登陆管理
+                    String params = request.getParameter("params");
+                    String admin = request.getParameter("admin");
+                    validServletPath(opt,params,admin);
+                    Map<String,String> paramMap = params2Map(params);
                     Map<String,String> adminMap = params2Map(admin);
                     String loginName = adminMap.get(PARAM_NAME_LOGINUSERNAME);
                     String loginPwd = adminMap.get(PARAM_NAME_LOGINPASSWORD);
@@ -131,13 +137,16 @@ public abstract class LangTokenFilter implements Filter {
             stringBuilder.append("{\"result\":\"").append(e.getMessage()).append("\"}");
             out.write(stringBuilder.toString());
             out.flush();
-            e.printStackTrace();
+            log.info("================【开始打印异常信息】================");
+            log.error("【错误类】={}",e.getStackTrace()[0].getClassName());
+            log.error("【错误方法】={}",e.getStackTrace()[0].getMethodName());
+            log.error("【错误位置】={}",e.getStackTrace()[0].getLineNumber());
+            log.error("【错误信息】={}【返回结果result】={}",e.getMessage(),stringBuilder.toString());
+            log.info("================【异常信息打印完毕】================");
         }
     }
-    private void validServletPath(String opt ,String params,String admin) throws TokenException{
-        if(StringUtils.isEmpty(opt)){
-            throw  new TokenException("请求的url参数opt有误");
-        }
+
+    private void validServletPath(String opt,String params,String admin) throws TokenException{
         if(StringUtils.isEmpty(params)){
             throw  new TokenException("请求的url参数params有误");
         }

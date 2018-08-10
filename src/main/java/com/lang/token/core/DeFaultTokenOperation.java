@@ -87,13 +87,14 @@ public class DeFaultTokenOperation implements TokenOperation {
             byte[] aesBytes = encryption.aesEncryptBytes(userInfoBytes,AES_KEY);
             //base64 编码 得到授权用户名
             String base64UserName = encryption.base64EncoderStr(aesBytes);
+
             //aes 加密
             byte[] pwdAesBytes = encryption.aesEncryptBytes((base64UserName+salt).getBytes("UTF-8"),AES_KEY);
             //md5 密码
             String md5Pwd = encryption.md5Str(pwdAesBytes);
             String md5Signature = encryption.md5Str(signature);
             TokenUser tokenUser = new TokenUser();
-            tokenUser.setUserName(base64UserName);
+            tokenUser.setUserName(encryption.md5Str(base64UserName));
             tokenUser.setPassWord(md5Pwd);
             tokenUser.setSignature(md5Signature);
             return tokenUser;
